@@ -1,10 +1,13 @@
+"""The Jinja2 extension that provides the templatetags"""
 from jinja2.ext import Extension
 from jinja2.utils import pass_context
 
 from .templatetags import asset_url, inline_entrypoint, register_entrypoint, render_css, render_js
 
 
-class WebpackExtension(Extension):
+class WebpackExtension(Extension):  # pylint: disable=abstract-method
+    """The Jinja2 extension that provides the templatetags"""
+
     def __init__(self, environment):
         super().__init__(environment)
         environment.globals.update(

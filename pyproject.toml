@@ -44,6 +44,9 @@ max-line-length = 120
 max-module-lines = 1000
 indent-after-paren = 4
 
+[tool.pylint.BASIC]
+good-names-rgxs = "^[_a-z][_a-z0-9]?$"
+
 [tool.flakeheaven]
 ignore = "D107,D202,D203,D401,E203,E402,E501,W503"
 max_line_length = 120
