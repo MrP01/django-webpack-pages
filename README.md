@@ -1,5 +1,8 @@
 # django-webpack-pages
 
+[![PyPI version](https://badge.fury.io/py/django-webpack-pages.svg)](https://pypi.org/project/django-webpack-pages/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 Use webpack with your multi-page, multilingual django webapp.
 
 This project is based on [django-webpack-loader](https://pypi.org/project/django-webpack-loader/)
