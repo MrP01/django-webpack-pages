@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-webpack-pages"
-version = "0.0.1"
+version = "0.1.0"
 description = "Use webpack with your multi-page, multilingual django webapp"
 authors = ["MrP01 <peter@waldert.at>"]
 license = "MIT"
