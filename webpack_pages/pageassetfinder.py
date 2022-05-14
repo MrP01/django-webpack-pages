@@ -5,8 +5,6 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.staticfiles import finders, utils
 
-from webpack_loader.config import load_config
-
 
 class PageAssetFinder(finders.BaseFinder):
     def __init__(self, *args, **kwargs):
