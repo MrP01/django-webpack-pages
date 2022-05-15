@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "django-webpack-pages"
-version = "0.1.0"
-description = "Use webpack with your multi-page, multilingual django webapp"
+version = "0.1.1"
+description = "Use webpack with your multi-page, multi-lingual django webapp"
 authors = ["MrP01 <peter@waldert.at>"]
 license = "MIT"
 readme = "README.md"
@@ -10,10 +10,10 @@ keywords = ["django", "webpack", "assets"]
 packages = [{ include = "webpack_pages" }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8"
 django-webpack-loader = "^1.5.0"
 Django = ">=3.0"
-Jinja2 = "^3.1.2"
+Jinja2 = ">=3.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.3.0"
