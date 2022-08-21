@@ -18,8 +18,9 @@ register = template.Library()
 def get_unique_files(entrypoints, extension, config):
     """For multiple entrypoints (or bundles), scans through their files and deduplicates them."""
     files = list(get_files(entrypoints[0], extension, config=config))
-    for ep in entrypoints[1:]:
-        files += [file for file in get_files(ep, extension, config=config) if file not in files]
+    if settings.WEBPACK_PAGES["STRATEGY"] == "ACCRUE":
+        for ep in entrypoints[1:]:
+            files += [file for file in get_files(ep, extension, config=config) if file not in files]
     return files
 
 
