@@ -81,3 +81,15 @@ repos:
           - --remove-unused-variables
           - --remove-duplicate-keys
           - --ignore-init-module-imports
+  - repo: local
+    hooks:
+      - id: bandit
+        name: bandit
+        entry: bandit
+        language: system
+        args:
+          - -c
+          - pyproject.toml
+        exclude: tests/
+        types:
+          - python
