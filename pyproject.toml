@@ -11,14 +11,14 @@ packages = [{ include = "webpack_pages" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-django-webpack-loader = "^1.5.0"
-Django = ">=3.0"
-Jinja2 = ">=3.0"
+django-webpack-loader = "^1.8.0"
+Django = "^4.1.5"
+Jinja2 = "^3.1.2"
 
 [tool.poetry.group.dev.dependencies]
-black = "^22.6.0"
-pylint = "^2.14.5"
-isort = "^5.10.1"
+black = "^22.12.0"
+pylint = "^2.15.10"
+isort = "^5.12.0"
 
 [tool.nitpick]
 style = ["github://MrP01/lint-me-now/nitpick-base-style.toml", "github://MrP01/lint-me-now/nitpick-python-style.toml"]
@@ -54,6 +54,10 @@ inline-quotes = "double"
 
 [tool.bandit]
 skips = ["B101"]
+
+[tool.ruff]
+line-length = 120
+exclude = [".git", "**/__pycache__"]
 [build-system]
-requires = ["poetry_core>=1.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

@@ -1,25 +1,25 @@
 repos:
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.0
+    rev: v3.0.0-alpha.4
     hooks:
       - id: prettier
         stages:
           - commit
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: debug-statements
   - repo: https://github.com/psf/black
-    rev: 22.6.0
+    rev: 22.12.0
     hooks:
       - id: black
         args:
           - --safe
           - --quiet
   - repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
+    rev: 5.12.0
     hooks:
       - id: isort
   - repo: local
@@ -32,7 +32,7 @@ repos:
         types:
           - python
   - repo: https://github.com/flakeheaven/flakeheaven
-    rev: 3.0.0
+    rev: 3.2.1
     hooks:
       - id: flakeheaven
         additional_dependencies:
@@ -48,14 +48,14 @@ repos:
           - flake8-typing-imports
           - yesqa
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: python-check-blanket-noqa
       - id: python-check-mock-methods
       - id: python-no-eval
       - id: python-no-log-warn
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.3
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         args:
@@ -65,14 +65,12 @@ repos:
       - id: pyright
         name: pyright
         entry: pyright
-        language: node
+        language: system
         types:
           - python
         pass_filenames: false
-        additional_dependencies:
-          - pyright
   - repo: https://github.com/myint/autoflake
-    rev: v1.4
+    rev: v2.0.0
     hooks:
       - id: autoflake
         args:
@@ -93,3 +91,7 @@ repos:
         exclude: tests/
         types:
           - python
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.238
+    hooks:
+      - id: ruff
