@@ -1,4 +1,5 @@
 """Jinja2 templatetags of django-webpack-pages"""
+
 import functools
 import os
 
@@ -28,10 +29,12 @@ def get_unique_files(entrypoints, extension, config):
 
 
 @register.simple_tag(takes_context=True)
-def register_entrypoint(context, entrypoint):
+def register_entrypoint(context, entrypoint, pop_previous=0):
     """Register an entrypoint to be used later"""
     if not hasattr(context, "webpack_entrypoints"):
         context.webpack_entrypoints = []
+    for _ in range(pop_previous):
+        context.webpack_entrypoints.pop()
     context.webpack_entrypoints.insert(0, entrypoint)
 
 
