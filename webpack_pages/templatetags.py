@@ -29,13 +29,17 @@ def get_unique_files(entrypoints, extension, config):
 
 
 @register.simple_tag(takes_context=True)
-def register_entrypoint(context, entrypoint, pop_previous=0):
+def register_entrypoint(context, entrypoint, *, pop_parents=0):
     """Register an entrypoint to be used later"""
     if not hasattr(context, "webpack_entrypoints"):
         context.webpack_entrypoints = []
-    for _ in range(pop_previous):
-        context.webpack_entrypoints.pop()
-    context.webpack_entrypoints.insert(0, entrypoint)
+    if not hasattr(context, "webpack_pops"):
+        context.webpack_pops = 0
+    if context.webpack_pops == 0:
+        context.webpack_entrypoints.insert(0, entrypoint)  # fill it in reverse
+    else:
+        context.webpack_pops -= 1  # we've performed the pop by skipping insert()
+    context.webpack_pops += pop_parents
 
 
 @register.simple_tag(takes_context=True)
