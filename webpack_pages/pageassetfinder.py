@@ -1,4 +1,5 @@
 """Contains the PageAssetFinder"""
+
 import os
 import urllib.parse
 

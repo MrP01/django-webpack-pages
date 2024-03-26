@@ -52,6 +52,8 @@ def render_css(context, config="DEFAULT"):
         noscript_tags.append(f'<link rel="stylesheet" href="{file["url"]}">')
     base = settings.WEBPACK_PAGES["STATICFILE_BUNDLES_BASE"].format(locale=translation.get_language())
     critical_path = finders.find(f"{base}{entrypoints[-1]}.critical.css")
+    if isinstance(critical_path, list):  # should not happen as we did not pass "all" parameter
+        critical_path = critical_path[0]
     if is_first_visit(context["request"]) and settings.WEBPACK_PAGES["CRITICAL_CSS_ENABLED"] and critical_path:
         with open(critical_path, encoding="utf-8") as f:
             critical_css = f.read()

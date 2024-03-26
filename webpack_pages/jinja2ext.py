@@ -1,4 +1,5 @@
 """The Jinja2 extension that provides the templatetags"""
+
 from jinja2.ext import Extension
 from jinja2.utils import pass_context
 
