@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from webpack_loader.utils import get_files
 
 from .pageassetfinder import PageAssetFinder
-from .utils import is_first_visit
+from .utils import is_first_visit, conditional_decorator
 
 register = template.Library()
 
@@ -77,14 +77,14 @@ def render_js(context, config="DEFAULT"):
     return mark_safe("".join(f"<script src='{file['url']}'></script>" for file in files))
 
 
-@functools.lru_cache()
+@conditional_decorator(functools.lru_cache(), not settings.DEBUG)
 def inline_static_file(path):
     """Plain static file inlining utility, with caching"""
     with open(finders.find(path), encoding="utf-8") as f:  # type: ignore
         return mark_safe(f.read())
 
 
-@functools.lru_cache()
+@conditional_decorator(functools.lru_cache(), not settings.DEBUG)
 def inline_entrypoint(entrypoint, extension, config="DEFAULT"):
     """Inlines all files of an entrypoint directly (i.e. returns a string)"""
     inlined = ""
