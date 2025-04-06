@@ -42,7 +42,7 @@ class PageAssetFinder(finders.BaseFinder):
                 for path in utils.get_files(assetstorage, ignore_patterns):
                     yield path, assetstorage
 
-    def find(self, path, all=False):  # pylint: disable=redefined-builtin
+    def find(self, path, find_all=False):
         """Finds a static file with a given name."""
         pathelements = os.path.normpath(path).split(os.path.sep)
         if pathelements[0] == "assets":
