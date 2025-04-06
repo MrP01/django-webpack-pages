@@ -4,8 +4,8 @@ import functools
 import os
 import typing
 
+import django.template
 import jinja2.runtime
-from django import template
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.utils import translation
@@ -15,7 +15,7 @@ from webpack_loader.utils import get_files
 from .pageassetfinder import PageAssetFinder
 from .utils import conditional_decorator, is_first_visit
 
-register = template.Library()
+register = django.template.Library()
 
 
 class SpecialContext(jinja2.runtime.Context):
@@ -68,27 +68,30 @@ def render_css(context: SpecialContext, config: str = "DEFAULT") -> SafeString:
     if is_first_visit(context["request"]) and settings.WEBPACK_PAGES["CRITICAL_CSS_ENABLED"] and critical_path:
         with open(critical_path, encoding="utf-8") as f:
             critical_css = f.read()
-        return mark_safe(
-            f"<style>{critical_css}</style>\n"
-            f"{''.join(preload_tags)}\n"
-            f"<script>{inline_static_file(base + 'cssrelpreload.js')}</script>\n"
-            f"<noscript>{''.join(noscript_tags)}</noscript>",
+        return typing.cast(
+            "SafeString",
+            mark_safe(
+                f"<style>{critical_css}</style>\n"
+                f"{''.join(preload_tags)}\n"
+                f"<script>{inline_static_file(base + 'cssrelpreload.js')}</script>\n"
+                f"<noscript>{''.join(noscript_tags)}</noscript>",
+            ),
         )
-    return mark_safe("".join(noscript_tags))
+    return typing.cast("SafeString", mark_safe("".join(noscript_tags)))
 
 
 @register.simple_tag(takes_context=True)
 def render_js(context: SpecialContext, config: str = "DEFAULT") -> SafeString:
     """Similar to render_css, but for JavaScript."""
     files = get_unique_files(getattr(context, "webpack_entrypoints", []), "js", config)
-    return mark_safe("".join(f"<script src='{file['url']}'></script>" for file in files))
+    return typing.cast("SafeString", mark_safe("".join(f"<script src='{file['url']}'></script>" for file in files)))
 
 
 @conditional_decorator(functools.lru_cache(), condition=not settings.DEBUG)
 def inline_static_file(path: str) -> SafeString:
     """Plain static file inlining utility, with caching."""
     with open(finders.find(path), encoding="utf-8") as f:  # type: ignore reportArgumentType
-        return mark_safe(f.read())
+        return typing.cast("SafeString", mark_safe(f.read()))
 
 
 @conditional_decorator(functools.lru_cache(), condition=not settings.DEBUG)
@@ -99,7 +102,7 @@ def inline_entrypoint(entrypoint: str, extension: str, config: str = "DEFAULT") 
     for file in get_unique_files((entrypoint,), extension, config=config):
         with open(finders.find(base + file["name"]), encoding="utf-8") as f:  # type: ignore reportArgumentType
             inlined += f.read()
-    return mark_safe(inlined)
+    return typing.cast("SafeString", mark_safe(inlined))
 
 
 @register.simple_tag(takes_context=True)
@@ -110,8 +113,12 @@ def asset_url(context: SpecialContext, path: str, *, absolute: bool = False) -> 
     elif hasattr(context, "assets_pagename"):
         pagename = context.assets_pagename
     else:
-        template_ = context.environment.get_template(context.name)
-        pages_location = os.path.normpath(template_.filename)[: -(len(os.path.normpath(context.name)) + 1)]
+        if context.name is None:
+            raise ValueError
+        template = context.environment.get_template(context.name)
+        if template.filename is None:
+            raise ValueError
+        pages_location = os.path.normpath(template.filename)[: -(len(os.path.normpath(context.name)) + 1)]
         if pages_location == settings.WEBPACK_PAGES["ROOT_PAGE_DIR"]:
             app_name = "root"
         else:
