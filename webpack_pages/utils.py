@@ -6,7 +6,7 @@ from django.http import HttpRequest
 
 
 def is_first_visit(request: HttpRequest) -> bool:
-    """Assumes that requests without any cookies are first-time requests (to be used for inlining critical css later)."""
+    """Assumes that requests without any cookies are first-time requests (used for inlining critical css later)."""
     return len(request.COOKIES) == 0
 
 
