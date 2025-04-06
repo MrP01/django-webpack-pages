@@ -2,7 +2,9 @@
 
 import functools
 import os
+import typing
 
+import jinja2.runtime
 from django import template
 from django.conf import settings
 from django.contrib.staticfiles import finders
@@ -16,7 +18,13 @@ from .utils import conditional_decorator, is_first_visit
 register = template.Library()
 
 
-def get_unique_files(entrypoints, extension, config):
+class SpecialContext(jinja2.runtime.Context):
+    webpack_entrypoints: list[str]
+    webpack_pops: int
+    assets_pagename: str
+
+
+def get_unique_files(entrypoints: typing.Sequence, extension: str, config: str) -> list[str]:
     """For multiple entrypoints (or bundles), scans through their files and deduplicates them."""
     if settings.WEBPACK_PAGES["STRATEGY"] == "ACCRUE":
         files = list(get_files(entrypoints[0], extension, config=config))
@@ -29,7 +37,7 @@ def get_unique_files(entrypoints, extension, config):
 
 
 @register.simple_tag(takes_context=True)
-def register_entrypoint(context, entrypoint, *, pop_parents=0) -> None:
+def register_entrypoint(context: SpecialContext, entrypoint: str, *, pop_parents: int = 0) -> None:
     """Register an entrypoint to be used later."""
     if not hasattr(context, "webpack_entrypoints"):
         context.webpack_entrypoints = []
@@ -43,7 +51,7 @@ def register_entrypoint(context, entrypoint, *, pop_parents=0) -> None:
 
 
 @register.simple_tag(takes_context=True)
-def render_css(context, config="DEFAULT"):
+def render_css(context: SpecialContext, config: str = "DEFAULT") -> str:
     """Render <style> and/or <link> tags, depending on the use of CRITICAL_CSS. Should be put in the <head>."""
     entrypoints = getattr(context, "webpack_entrypoints", [])
     preload_tags = []
@@ -70,21 +78,21 @@ def render_css(context, config="DEFAULT"):
 
 
 @register.simple_tag(takes_context=True)
-def render_js(context, config="DEFAULT"):
+def render_js(context: SpecialContext, config: str = "DEFAULT"):
     """Similar to render_css, but for JavaScript."""
     files = get_unique_files(getattr(context, "webpack_entrypoints", []), "js", config)
     return mark_safe("".join(f"<script src='{file['url']}'></script>" for file in files))
 
 
-@conditional_decorator(functools.lru_cache(), not settings.DEBUG)
-def inline_static_file(path):
+@conditional_decorator(functools.lru_cache(), condition=not settings.DEBUG)
+def inline_static_file(path: str) -> str:
     """Plain static file inlining utility, with caching."""
     with open(finders.find(path), encoding="utf-8") as f:  # type: ignore
         return mark_safe(f.read())
 
 
-@conditional_decorator(functools.lru_cache(), not settings.DEBUG)
-def inline_entrypoint(entrypoint, extension, config="DEFAULT"):
+@conditional_decorator(functools.lru_cache(), condition=not settings.DEBUG)
+def inline_entrypoint(entrypoint: str, extension: str, config: str = "DEFAULT") -> str:
     """Inlines all files of an entrypoint directly (i.e. returns a string)."""
     inlined = ""
     base = settings.WEBPACK_PAGES["STATICFILE_BUNDLES_BASE"].format(locale=translation.get_language())
@@ -95,7 +103,7 @@ def inline_entrypoint(entrypoint, extension, config="DEFAULT"):
 
 
 @register.simple_tag(takes_context=True)
-def asset_url(context, path, absolute=False):
+def asset_url(context: SpecialContext, path: str, *, absolute: bool = False) -> str:
     """Returns an asset URL, should be called from within a page template."""
     if absolute:
         pagename, _, path = path.partition("/")

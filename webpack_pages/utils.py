@@ -1,12 +1,16 @@
 """Some utilities."""
 
+import typing
 
-def is_first_visit(request):
+from django.http import HttpRequest
+
+
+def is_first_visit(request: HttpRequest) -> bool:
     """Assumes that requests without any cookies are first-time requests (to be used for inlining critical css later)."""
     return len(request.COOKIES) == 0
 
 
-def conditional_decorator(dec, condition: bool):
+def conditional_decorator(dec: typing.Callable, *, condition: bool) -> typing.Callable:
     """Conditionally applies decorator.
 
     Args:
@@ -15,7 +19,7 @@ def conditional_decorator(dec, condition: bool):
 
     """
 
-    def decorator(func):
+    def decorator(func: typing.Callable) -> typing.Callable:
         if not condition:
             # Return the function unchanged, not decorated.
             return func
