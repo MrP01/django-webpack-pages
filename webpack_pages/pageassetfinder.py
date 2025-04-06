@@ -1,4 +1,4 @@
-"""Contains the PageAssetFinder"""
+"""Contains the PageAssetFinder."""
 
 import os
 import urllib.parse
@@ -9,9 +9,9 @@ from django.contrib.staticfiles import finders, utils
 
 
 class PageAssetFinder(finders.BaseFinder):
-    """A static asset finder based on page structure"""
+    """A static asset finder based on page structure."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.pageassets = {}  # pagename: storage instance
         config = settings.WEBPACK_PAGES
@@ -19,8 +19,8 @@ class PageAssetFinder(finders.BaseFinder):
         for app_config in apps.get_app_configs():
             self.load_pages(os.path.join(app_config.path, "pages"), namespace=app_config.name)
 
-    def load_pages(self, path, namespace=None):
-        """Loads all pages' assets in the entire path"""
+    def load_pages(self, path, namespace=None) -> None:
+        """Loads all pages' assets in the entire path."""
         if not os.path.exists(path):
             return
         for pagepath in os.listdir(path):
@@ -36,14 +36,14 @@ class PageAssetFinder(finders.BaseFinder):
         return []
 
     def list(self, ignore_patterns):
-        """Lists all files"""
-        for _, assetstorage in self.pageassets.items():
+        """Lists all files."""
+        for assetstorage in self.pageassets.values():
             if assetstorage.exists(""):
                 for path in utils.get_files(assetstorage, ignore_patterns):
                     yield path, assetstorage
 
     def find(self, path, all=False):  # pylint: disable=redefined-builtin
-        """Finds a static file with a given name"""
+        """Finds a static file with a given name."""
         pathelements = os.path.normpath(path).split(os.path.sep)
         if pathelements[0] == "assets":
             assets = self.pageassets.get(pathelements[1])
@@ -57,10 +57,10 @@ class PageAssetFinder(finders.BaseFinder):
 
     @staticmethod
     def page_asset_name(pagename, path):
-        """Returns the name of a page asset, given a page name and a path"""
+        """Returns the name of a page asset, given a page name and a path."""
         return os.path.join("assets", pagename, path)
 
     @staticmethod
     def page_asset_url(pagename, path):
-        """Returns the url of a page asset, given a page name and a path"""
+        """Returns the url of a page asset, given a page name and a path."""
         return urllib.parse.urljoin(settings.STATIC_URL, PageAssetFinder.page_asset_name(pagename, path))

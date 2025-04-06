@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-webpack-pages"
-version = "0.1.5"
+version = "0.1.6"
 description = "Use webpack with your multi-page, multi-lingual django webapp"
 authors = ["MrP01 <peter@waldert.at>"]
 license = "MIT"
@@ -19,31 +19,12 @@ Jinja2 = "^3.1.4"
 pylint = "^3.2.2"
 
 [tool.nitpick]
-style = [
-  "github://MrP01/lint-me-now/nitpick-base-style.toml",
-  "github://MrP01/lint-me-now/nitpick-python-style.toml",
-]
-
-[tool.pylint]
-
-[tool.pylint.MASTER]
-jobs = 1
-extension-pkg-whitelist = "pydantic"
-
-[tool.pylint.REPORTS]
-output-format = "colorized"
-
-[tool.pylint.FORMAT]
-max-line-length = 120
-max-module-lines = 1000
-indent-after-paren = 4
-
-[tool.pylint.BASIC]
-good-names-rgxs = "^[_a-z][_a-z0-9]?$"
+style = ["github://MrP01/lint-me-now/nitpick-base-style.toml", "github://MrP01/lint-me-now/nitpick-python-style.toml"]
 
 [tool.ruff]
 line-length = 120
 exclude = [".git", "**/__pycache__"]
+lint.select = ["ALL"]
 
 [build-system]
 requires = ["poetry-core"]

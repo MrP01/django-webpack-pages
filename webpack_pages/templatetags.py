@@ -1,4 +1,4 @@
-"""Jinja2 templatetags of django-webpack-pages"""
+"""Jinja2 templatetags of django-webpack-pages."""
 
 import functools
 import os
@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from webpack_loader.utils import get_files
 
 from .pageassetfinder import PageAssetFinder
-from .utils import is_first_visit, conditional_decorator
+from .utils import conditional_decorator, is_first_visit
 
 register = template.Library()
 
@@ -25,12 +25,12 @@ def get_unique_files(entrypoints, extension, config):
         return files
     if settings.WEBPACK_PAGES["STRATEGY"] == "LAST":
         return list(get_files(entrypoints[-1], extension, config))
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 @register.simple_tag(takes_context=True)
-def register_entrypoint(context, entrypoint, *, pop_parents=0):
-    """Register an entrypoint to be used later"""
+def register_entrypoint(context, entrypoint, *, pop_parents=0) -> None:
+    """Register an entrypoint to be used later."""
     if not hasattr(context, "webpack_entrypoints"):
         context.webpack_entrypoints = []
     if not hasattr(context, "webpack_pops"):
@@ -44,14 +44,13 @@ def register_entrypoint(context, entrypoint, *, pop_parents=0):
 
 @register.simple_tag(takes_context=True)
 def render_css(context, config="DEFAULT"):
-    """Render <style> and/or <link> tags, depending on the use of CRITICAL_CSS. Should be put in the <head>"""
+    """Render <style> and/or <link> tags, depending on the use of CRITICAL_CSS. Should be put in the <head>."""
     entrypoints = getattr(context, "webpack_entrypoints", [])
     preload_tags = []
     noscript_tags = []
     for file in get_unique_files(entrypoints, "css", config):
         preload_tags.append(
-            f'<link rel="preload" href="{file["url"]}" as="style" '
-            f"onload=\"this.onload=null;this.rel='stylesheet'\">"
+            f'<link rel="preload" href="{file["url"]}" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">',
         )
         noscript_tags.append(f'<link rel="stylesheet" href="{file["url"]}">')
     base = settings.WEBPACK_PAGES["STATICFILE_BUNDLES_BASE"].format(locale=translation.get_language())
@@ -65,7 +64,7 @@ def render_css(context, config="DEFAULT"):
             f"<style>{critical_css}</style>\n"
             f"{''.join(preload_tags)}\n"
             f"<script>{inline_static_file(base + 'cssrelpreload.js')}</script>\n"
-            f"<noscript>{''.join(noscript_tags)}</noscript>"
+            f"<noscript>{''.join(noscript_tags)}</noscript>",
         )
     return mark_safe("".join(noscript_tags))
 
@@ -79,14 +78,14 @@ def render_js(context, config="DEFAULT"):
 
 @conditional_decorator(functools.lru_cache(), not settings.DEBUG)
 def inline_static_file(path):
-    """Plain static file inlining utility, with caching"""
+    """Plain static file inlining utility, with caching."""
     with open(finders.find(path), encoding="utf-8") as f:  # type: ignore
         return mark_safe(f.read())
 
 
 @conditional_decorator(functools.lru_cache(), not settings.DEBUG)
 def inline_entrypoint(entrypoint, extension, config="DEFAULT"):
-    """Inlines all files of an entrypoint directly (i.e. returns a string)"""
+    """Inlines all files of an entrypoint directly (i.e. returns a string)."""
     inlined = ""
     base = settings.WEBPACK_PAGES["STATICFILE_BUNDLES_BASE"].format(locale=translation.get_language())
     for file in get_unique_files((entrypoint,), extension, config=config):
@@ -97,7 +96,7 @@ def inline_entrypoint(entrypoint, extension, config="DEFAULT"):
 
 @register.simple_tag(takes_context=True)
 def asset_url(context, path, absolute=False):
-    """Returns an asset URL, should be called from within a page template"""
+    """Returns an asset URL, should be called from within a page template."""
     if absolute:
         pagename, _, path = path.partition("/")
     elif hasattr(context, "assets_pagename"):
