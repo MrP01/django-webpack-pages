@@ -1,8 +1,8 @@
 """Contains the PageAssetFinder."""
 
 import os
-import typing
 import urllib.parse
+from collections.abc import Iterable
 
 from django.apps import apps
 from django.conf import settings
@@ -37,14 +37,14 @@ class PageAssetFinder(finders.BaseFinder):
         """No errors so far."""
         return []
 
-    def list(self, ignore_patterns: str) -> typing.Generator[tuple[str, FileSystemStorage]]:
+    def list(self, ignore_patterns: Iterable[str] | None) -> Iterable[tuple[str, FileSystemStorage]]:
         """Lists all files."""
         for assetstorage in self.pageassets.values():
             if assetstorage.exists(""):
                 for path in utils.get_files(assetstorage, ignore_patterns):
                     yield path, assetstorage
 
-    def find(self, path: str, *, find_all: bool = False) -> "list[str]":
+    def find(self, path: str, find_all: bool = False, **kwargs) -> "list[str]":  # noqa: FBT001 FBT002
         """Finds a static file with a given name."""
         pathelements = os.path.normpath(path).split(os.path.sep)
         if pathelements[0] == "assets":

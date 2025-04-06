@@ -9,7 +9,7 @@ from django import template
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.utils import translation
-from django.utils.safestring import mark_safe
+from django.utils.safestring import SafeString, mark_safe
 from webpack_loader.utils import get_files
 
 from .pageassetfinder import PageAssetFinder
@@ -51,7 +51,7 @@ def register_entrypoint(context: SpecialContext, entrypoint: str, *, pop_parents
 
 
 @register.simple_tag(takes_context=True)
-def render_css(context: SpecialContext, config: str = "DEFAULT") -> str:
+def render_css(context: SpecialContext, config: str = "DEFAULT") -> SafeString:
     """Render <style> and/or <link> tags, depending on the use of CRITICAL_CSS. Should be put in the <head>."""
     entrypoints = getattr(context, "webpack_entrypoints", [])
     preload_tags = []
@@ -78,21 +78,21 @@ def render_css(context: SpecialContext, config: str = "DEFAULT") -> str:
 
 
 @register.simple_tag(takes_context=True)
-def render_js(context: SpecialContext, config: str = "DEFAULT") -> str:
+def render_js(context: SpecialContext, config: str = "DEFAULT") -> SafeString:
     """Similar to render_css, but for JavaScript."""
     files = get_unique_files(getattr(context, "webpack_entrypoints", []), "js", config)
     return mark_safe("".join(f"<script src='{file['url']}'></script>" for file in files))
 
 
 @conditional_decorator(functools.lru_cache(), condition=not settings.DEBUG)
-def inline_static_file(path: str) -> str:
+def inline_static_file(path: str) -> SafeString:
     """Plain static file inlining utility, with caching."""
     with open(finders.find(path), encoding="utf-8") as f:  # type: ignore reportArgumentType
         return mark_safe(f.read())
 
 
 @conditional_decorator(functools.lru_cache(), condition=not settings.DEBUG)
-def inline_entrypoint(entrypoint: str, extension: str, config: str = "DEFAULT") -> str:
+def inline_entrypoint(entrypoint: str, extension: str, config: str = "DEFAULT") -> SafeString:
     """Inlines all files of an entrypoint directly (i.e. returns a string)."""
     inlined = ""
     base = settings.WEBPACK_PAGES["STATICFILE_BUNDLES_BASE"].format(locale=translation.get_language())
