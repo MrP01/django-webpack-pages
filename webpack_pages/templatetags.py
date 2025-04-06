@@ -24,7 +24,7 @@ class SpecialContext(jinja2.runtime.Context):
     assets_pagename: str
 
 
-def get_unique_files(entrypoints: typing.Sequence, extension: str, config: str) -> list[str]:
+def get_unique_files(entrypoints: typing.Sequence, extension: str, config: str) -> list[dict]:
     """For multiple entrypoints (or bundles), scans through their files and deduplicates them."""
     if settings.WEBPACK_PAGES["STRATEGY"] == "ACCRUE":
         files = list(get_files(entrypoints[0], extension, config=config))
@@ -78,7 +78,7 @@ def render_css(context: SpecialContext, config: str = "DEFAULT") -> str:
 
 
 @register.simple_tag(takes_context=True)
-def render_js(context: SpecialContext, config: str = "DEFAULT"):
+def render_js(context: SpecialContext, config: str = "DEFAULT") -> str:
     """Similar to render_css, but for JavaScript."""
     files = get_unique_files(getattr(context, "webpack_entrypoints", []), "js", config)
     return mark_safe("".join(f"<script src='{file['url']}'></script>" for file in files))
@@ -87,7 +87,7 @@ def render_js(context: SpecialContext, config: str = "DEFAULT"):
 @conditional_decorator(functools.lru_cache(), condition=not settings.DEBUG)
 def inline_static_file(path: str) -> str:
     """Plain static file inlining utility, with caching."""
-    with open(finders.find(path), encoding="utf-8") as f:  # type: ignore
+    with open(finders.find(path), encoding="utf-8") as f:  # type: ignore reportArgumentType
         return mark_safe(f.read())
 
 
@@ -97,7 +97,7 @@ def inline_entrypoint(entrypoint: str, extension: str, config: str = "DEFAULT") 
     inlined = ""
     base = settings.WEBPACK_PAGES["STATICFILE_BUNDLES_BASE"].format(locale=translation.get_language())
     for file in get_unique_files((entrypoint,), extension, config=config):
-        with open(finders.find(base + file["name"]), encoding="utf-8") as f:  # type: ignore
+        with open(finders.find(base + file["name"]), encoding="utf-8") as f:  # type: ignore reportArgumentType
             inlined += f.read()
     return mark_safe(inlined)
 
